@@ -194,6 +194,20 @@ async def require_auth(request: Request):
         raise HTTPException(status_code=401, detail="unauthorized")
     return token
 
+async def _tg_start_bot():
+    try:
+        from telegram_bot import start_bot
+        await start_bot()
+    except Exception as e:
+        logger.warning(f"telegram_bot start warning: {e}")
+
+async def _tg_stop_bot():
+    try:
+        from telegram_bot import stop_bot
+        await stop_bot()
+    except Exception as e:
+        logger.warning(f"telegram_bot stop warning: {e}")
+
 # ── Startup / Shutdown ────────────────────────────────────────────────────────
 @app.on_event("startup")
 async def startup():
@@ -777,10 +791,7 @@ async def load_additional_routes():
     except Exception as e:
         logger.warning(f"xhttp_siz10 load warning: {e}")
 
-# ══════════════════════════════════════════════════════════════════════════════
-# ربات مدیریت تلگرام (اختیاری — فقط اگه TELEGRAM_BOT_TOKEN ست شده باشه فعال می‌شه)
-# ══════════════════════════════════════════════════════════════════════════════
-from telegram_bot import start_bot as _tg_start_bot, stop_bot as _tg_stop_bot
+
 
 # ── HTTP Proxy ────────────────────────────────────────────────────────────────
 _HOP = {"connection","keep-alive","proxy-authenticate","proxy-authorization",
