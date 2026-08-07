@@ -761,25 +761,21 @@ async def delete_link(uid: str, _=Depends(require_auth)):
     return {"ok": True, "deleted": uid}
 
 # ══════════════════════════════════════════════════════════════════════════════
-# VLESS Relay — جدا شده به relay_vless.py (دست نخورده)
+# VLESS Relay & XHTTP Routers
 # ══════════════════════════════════════════════════════════════════════════════
+@app.on_event("startup")
+async def load_additional_routes():
+    try:
+        from relay_vless import websocket_tunnel
+        app.add_api_websocket_route("/ws/{uuid}", websocket_tunnel)
+    except Exception as e:
+        logger.warning(f"relay_vless load warning: {e}")
 
-from relay_vless import (
-    RELAY_BUF,
-    parse_vless_header,
-    check_and_use,
-    relay_ws_to_tcp,
-    relay_tcp_to_ws,
-    websocket_tunnel,
-)
-
-app.add_api_websocket_route("/ws/{uuid}", websocket_tunnel)
-
-# ══════════════════════════════════════════════════════════════════════════════
-# XHTTP — Siz10a XHTTP Ultra (ترابرد جدید، جدا از VLESS/WS، هر ۳ مد)
-# ══════════════════════════════════════════════════════════════════════════════
-from xhttp_siz10 import router as xhttp_router
-app.include_router(xhttp_router)
+    try:
+        from xhttp_siz10 import router as xhttp_router
+        app.include_router(xhttp_router)
+    except Exception as e:
+        logger.warning(f"xhttp_siz10 load warning: {e}")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ربات مدیریت تلگرام (اختیاری — فقط اگه TELEGRAM_BOT_TOKEN ست شده باشه فعال می‌شه)
