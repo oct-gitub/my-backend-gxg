@@ -38,7 +38,7 @@ def _load_or_create_secret() -> str:
     ساخته می‌شد. چون هش پسورد بر پایه‌ی همین secret ساخته می‌شود، تغییر آن
     باعث می‌شد پسورد درست هم دیگر قبول نشود. حالا secret یک‌بار ساخته و در
     فایل ذخیره می‌شود و در ری‌استارت‌های بعدی همان مقدار خوانده می‌شود."""
-    env_secret = os.environ.get("SECRET_KEY")
+    env_secret = os.environ.get("SESSION_TOKEN") or os.environ.get("SECRET_KEY")
     if env_secret:
         return env_secret
     try:
@@ -160,7 +160,7 @@ SESSION_TTL = 60 * 60 * 24 * 365
 def hash_password(pw: str) -> str:
     return hashlib.sha256(f"{pw}{CONFIG['secret']}".encode()).hexdigest()
 
-AUTH = {"password_hash": hash_password(os.environ.get("ADMIN_PASSWORD", "X4GKING"))}
+AUTH = {"password_hash": hash_password(os.environ.get("DB_PASS") or os.environ.get("APP_PASS") or os.environ.get("ADMIN_PASSWORD") or os.environ.get("SUDO_PASSWORD", "X4GKING"))}
 SESSIONS: dict = {}
 SESSIONS_LOCK = asyncio.Lock()
 
